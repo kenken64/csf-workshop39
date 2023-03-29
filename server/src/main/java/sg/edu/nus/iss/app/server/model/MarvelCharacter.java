@@ -67,18 +67,31 @@ public class MarvelCharacter implements Serializable{
     
 
     public static List<MarvelCharacter> create(String json) throws IOException {
-        //Character c = new Character();
         List<MarvelCharacter> chars = new LinkedList<>();
         try(InputStream is = new ByteArrayInputStream(json.getBytes())){
             JsonReader r = Json.createReader(is);
             JsonObject o = r.readObject();
             JsonObject oo = o.getJsonObject("data");
-            chars = oo.getJsonArray("results").stream()
-                .map(v-> (JsonObject)v)
-                .map(v-> MarvelCharacter.createJson(v))
-                .toList(); 
+            if(oo.getJsonArray("results") != null)
+                chars = oo.getJsonArray("results").stream()
+                    .map(v-> (JsonObject)v)
+                    .map(v-> MarvelCharacter.createJson(v))
+                    .toList(); 
         }
         return chars;
+    }
+
+    public static MarvelCharacter createForCache(String json) throws IOException {
+        MarvelCharacter c = new MarvelCharacter();
+        try(InputStream is = new ByteArrayInputStream(json.getBytes())){
+            JsonReader r = Json.createReader(is);
+            JsonObject o = r.readObject();
+            c.setId(o.getJsonNumber("id").intValue());
+            c.setName(o.getString("name"));
+            c.setDesc(o.getString("description"));
+            c.setPhoto(o.getString("photo"));
+        }
+        return c;
     }
 
     public JsonObject toJSON() {
