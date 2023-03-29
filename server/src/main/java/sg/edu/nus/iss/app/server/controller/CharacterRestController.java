@@ -1,5 +1,6 @@
 package sg.edu.nus.iss.app.server.controller;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
@@ -10,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,7 +22,10 @@ import org.springframework.web.bind.annotation.RestController;
 import jakarta.json.Json;
 import jakarta.json.JsonArray;
 import jakarta.json.JsonArrayBuilder;
+import jakarta.json.JsonObject;
+import jakarta.json.JsonObjectBuilder;
 import sg.edu.nus.iss.app.server.services.CharacterService;
+import sg.edu.nus.iss.app.server.model.Comment;
 import sg.edu.nus.iss.app.server.model.MarvelCharacter;
 
 @RestController
@@ -39,9 +44,7 @@ public class CharacterRestController {
         @RequestParam(required=true) Integer offset) {
 
         JsonArray result = null;
-        logger.info("limit : " + limit);
-        logger.info("offset  : " + offset);
-        Optional<List<MarvelCharacter>> or =charSvc.getCharacters(characterName, limit, offset);
+        Optional<List<MarvelCharacter>> or = this.charSvc.getCharacters(characterName, limit, offset);
         List<MarvelCharacter> results = or.get(); 
         JsonArrayBuilder arrBuilder = Json.createArrayBuilder();
         for (MarvelCharacter mc : results)
@@ -55,24 +58,43 @@ public class CharacterRestController {
 
     @GetMapping(path="/{charId}")
     public ResponseEntity<String> getCharacterDetails(
-        @RequestParam(required=true) String charId) {
-        logger.info("charId : " + charId);
-    
+        @PathVariable(required=true) String charId) throws IOException {
+        MarvelCharacter c = this.charSvc.getCharacterDetails(charId);
+        JsonObjectBuilder ocjBuilder = Json.createObjectBuilder();
+        ocjBuilder.add("details" , c.toJSON());
+        JsonObject result = ocjBuilder.build();
         return ResponseEntity
             .status(HttpStatus.OK)
             .contentType(MediaType.APPLICATION_JSON)
-            .body(null);
+            .body(result.toString());
     }
 
-    @PostMapping
+    @PostMapping(path="/{charId}")
     public ResponseEntity<String> saveCharacterComment(
-        @RequestBody String comment) {
-        
+        @RequestBody Comment comment, @PathVariable(required=true) String charId) {
+        logger.info("save comment > : " + charId);
+        Comment c= new Comment();
+        c.setComment(comment.getComment());
+        c.setCharId(charId);
+        Comment r = this.charSvc.insertComment(c);
         return ResponseEntity
             .status(HttpStatus.OK)
             .contentType(MediaType.APPLICATION_JSON)
-            .body(null);
+            .body(r.toJSON().toString());
     }
 
+    @GetMapping(path="/comments/{charId}")
+    public ResponseEntity<String> getCharComments(@PathVariable(required=true) String charId) {
+        logger.info("Get All ...comments");
+        List<Comment> aa = this.charSvc.getAllComments(charId);
+        JsonArrayBuilder arrBuilder = Json.createArrayBuilder();
+        for (Comment c : aa)
+            arrBuilder.add(c.toJSON());
+        JsonArray result = arrBuilder.build();
+        return ResponseEntity
+            .status(HttpStatus.OK)
+            .contentType(MediaType.APPLICATION_JSON)
+            .body(result.toString());
+    }
 
 }

@@ -1,10 +1,7 @@
 package sg.edu.nus.iss.app.server.services;
 
 import java.io.IOException;
-import java.security.MessageDigest;
 import java.sql.Timestamp;
-import java.time.Instant;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -15,7 +12,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import sg.edu.nus.iss.app.server.model.MarvelCharDetails;
 import sg.edu.nus.iss.app.server.model.MarvelCharacter;
 
 @Service
@@ -50,7 +46,7 @@ public class MarvelApiService {
         System.out.println(r[1]);
         
         String marvelCharApiUrl = UriComponentsBuilder
-                                    .fromUriString(marvelapiUrl)
+                                    .fromUriString(marvelapiUrl + "characters")
                                     .queryParam("ts", r[0].trim())
                                     .queryParam("apikey", marvelPublicApiKey.trim())
                                     .queryParam("hash", r[1])
@@ -74,17 +70,17 @@ public class MarvelApiService {
         return Optional.empty();
     }
 
-    public Optional<MarvelCharDetails> getCharacterDetails(String characterId) 
+    public Optional<MarvelCharacter> getCharacterDetails(String characterId) 
             throws IOException{
         ResponseEntity<String> resp = null;
-        MarvelCharDetails c = null;
+        MarvelCharacter c = null;
         System.out.println(marvelPublicApiKey);
         String[] r = getMarvelApiHash();
         System.out.println(r[0]);
         System.out.println(r[1]);
         
         String marvelCharApiUrl = UriComponentsBuilder
-                                    .fromUriString(marvelapiUrl + "/" + characterId)
+                                    .fromUriString(marvelapiUrl + "characters/" + characterId)
                                     .queryParam("ts", r[0].trim())
                                     .queryParam("apikey", marvelPublicApiKey.trim())
                                     .queryParam("hash", r[1])
@@ -93,7 +89,8 @@ public class MarvelApiService {
         RestTemplate template = new RestTemplate();
         resp = template.getForEntity(marvelCharApiUrl,String.class);
         System.out.println(resp);
-        c = MarvelCharDetails.createCharDetails(resp.getBody());
+        List<MarvelCharacter> cArr = MarvelCharacter.create(resp.getBody());
+        c = cArr.get(0);
         System.out.println(c);
         if(c != null)
             return Optional.of(c);                        

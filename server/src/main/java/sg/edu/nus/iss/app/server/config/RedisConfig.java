@@ -33,7 +33,7 @@ public class RedisConfig {
     // Return the RedisTemplate
     @Bean
     @Scope("singleton")
-    public RedisTemplate<String, Object> redisTemplate() {
+    public RedisTemplate<String, String> redisTemplate() {
         final RedisStandaloneConfiguration config = new RedisStandaloneConfiguration();
 
         config.setHostName(redisHost);
@@ -50,7 +50,7 @@ public class RedisConfig {
                 .build();
         final JedisConnectionFactory jedisFac = new JedisConnectionFactory(config, jedisClient);
         jedisFac.afterPropertiesSet();
-        RedisTemplate<String, Object> redisTemplate = new RedisTemplate<String, Object>();
+        RedisTemplate<String, String> redisTemplate = new RedisTemplate<String, String>();
         // associate with the redis connection
         redisTemplate.setConnectionFactory(jedisFac);
 

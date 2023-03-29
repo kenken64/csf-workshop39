@@ -14,7 +14,23 @@ import jakarta.json.JsonReader;
 public class MarvelCharacter implements Serializable{
     private Integer id;
     private String name;
-    private List<String> comments;
+    private String desc;
+    private String photo;
+    
+    public String getDesc() {
+        return desc;
+    }
+    public void setDesc(String desc) {
+        this.desc = desc;
+    }
+    public String getPhoto() {
+        return photo;
+    }
+    public void setPhoto(String photo) {
+        this.photo = photo;
+    }
+
+    private List<Comment> comments;
     
     public Integer getId() {
         return id;
@@ -29,17 +45,23 @@ public class MarvelCharacter implements Serializable{
         this.name = name;
     }
 
-    public List<String> getComments() {
+    public List<Comment> getComments() {
         return comments;
     }
-    public void setComments(List<String> comments) {
+    public void setComments(List<Comment> comments) {
         this.comments = comments;
     }
 
     public static MarvelCharacter createJson(JsonObject o){
         MarvelCharacter c = new MarvelCharacter();
+        JsonObject t = o.getJsonObject("thumbnail");
+        String path = t.getString("path");
+        String ext = t.getString("extension");
+        
         c.id = o.getJsonNumber("id").intValue();
         c.name = o.getString("name");
+        c.desc = o.getString("description");
+        c.photo = path + '.' + ext; 
         return c;
     }
     
@@ -63,6 +85,8 @@ public class MarvelCharacter implements Serializable{
         return Json.createObjectBuilder()
                 .add("id", getId())
                 .add("name", getName())
+                .add("description", getDesc())
+                .add("photo", getPhoto())
                 .build();
     }
     
