@@ -4,6 +4,7 @@ import { Subscription } from 'rxjs';
 import { Character } from '../models/character';
 import { MarvelCharService } from '../services/marvel-char.service';
 import { Comment } from '../models/comment';
+import { WebShareService } from '../webshare/web-share.service';
 
 @Component({
   selector: 'app-details',
@@ -18,7 +19,8 @@ export class DetailsComponent implements OnInit, OnDestroy{
   comments!: Comment[];
 
   constructor(private activatedRoute: ActivatedRoute, 
-    private marvelCharSvc: MarvelCharService, private router: Router){
+    private marvelCharSvc: MarvelCharService, private router: Router
+      , private webshareSvc: WebShareService ){
 
   }
 
@@ -41,6 +43,14 @@ export class DetailsComponent implements OnInit, OnDestroy{
   addComent(){
     const queryParams: Params = { charParam: this.character['name'] + '|' + this.character.id };
     this.router.navigate(['/comment'], {queryParams : queryParams})
+  }
+
+  share(){
+    this.webshareSvc.share({
+      title: 'My Awesome app',
+      text: 'hey check out my Share button',
+      url: 'https://developers.google.com/web'
+    });
   }
 
   ngOnDestroy(): void{
