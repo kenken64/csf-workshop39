@@ -16,6 +16,7 @@ public class MarvelCharacter implements Serializable{
     private String name;
     private String desc;
     private String photo;
+    private List<Comment> comments;
     
     public String getDesc() {
         return desc;
@@ -30,8 +31,6 @@ public class MarvelCharacter implements Serializable{
         this.photo = photo;
     }
 
-    private List<Comment> comments;
-    
     public Integer getId() {
         return id;
     }
