@@ -47,8 +47,8 @@ export class DetailsComponent implements OnInit, OnDestroy{
 
   share(){
     this.webshareSvc.share({
-      title: 'My Awesome app',
-      text: 'hey check out my Share button',
+      title: 'Marvel App',
+      text: 'Hey check out my Share',
       url: 'https://developers.google.com/web'
     });
   }
